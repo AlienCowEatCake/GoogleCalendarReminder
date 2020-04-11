@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Name=Google Calendar Reminder
+GenericName=Google Calendar Reminder
+Comment=Google Calendar Reminder
+Exec=GoogleCalendarReminder.py
+Icon=appointment-soon
+Type=Application
+Terminal=false
+Categories=Utility;
