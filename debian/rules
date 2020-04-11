@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+
+build-stamp:
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean
+
+binary-indep: build
+
+binary-arch: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+	cp -a GoogleCalendarReminder.py debian/google-calendar-reminder/opt/GoogleCalendarReminder/
+	cp -a GoogleCalendarReminder.desktop debian/google-calendar-reminder/opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop
+	ln -s /opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop debian/google-calendar-reminder/usr/share/applications/ru.codefreak.fami.googlecalendarreminder.desktop
+	sed -i 's|^Exec=GoogleCalendarReminder.py|Exec=/opt/GoogleCalendarReminder/GoogleCalendarReminder.py|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+source diff:
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

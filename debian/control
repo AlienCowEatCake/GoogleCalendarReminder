@@ -1,0 +1,13 @@
+Source: google-calendar-reminder
+Section: utils
+Priority: optional
+Maintainer: Peter Zhigalov <peter.zhigalov@gmail.com>
+Build-Depends: debhelper (>= 9), sed
+Homepage: https://github.com/AlienCowEatCake/GoogleCalendarReminder
+
+Package: google-calendar-reminder
+Architecture: all
+Depends: gcalcli (>= 3.1), python3 (>= 3.4), python3-pyqt5 (>= 5.3), libnotify-bin
+Description: remind you about upcoming events from your Google Calendar
+ GoogleCalendarReminder is a simple system tray agent that will remind you
+ about upcoming events from your Google Calendar.
