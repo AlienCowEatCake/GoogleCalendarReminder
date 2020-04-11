@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class GoogleCalendarReminder(QtCore.QObject):
-    icon = "appointment-soon"
+    icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "GoogleCalendarReminder.svg")
     update_interval = 2 * 60 * 1000
 
     def __init__(self):
         super(GoogleCalendarReminder, self).__init__()
         self.trayIcon = QtWidgets.QSystemTrayIcon()
         QtWidgets.qApp.aboutToQuit.connect(self.trayIcon.hide)
-        icon = QtGui.QIcon.fromTheme(self.icon)
+        icon = QtGui.QIcon(self.icon)
         self.trayIcon.setIcon(icon)
         self.trayIcon.activated.connect(self._on_tray_icon_activated)
 

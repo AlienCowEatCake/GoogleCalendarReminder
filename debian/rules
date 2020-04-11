@@ -21,10 +21,10 @@ binary-arch: build
 	dh_testroot
 	dh_prep
 	dh_installdirs
-	cp -a GoogleCalendarReminder.py debian/google-calendar-reminder/opt/GoogleCalendarReminder/
-	cp -a GoogleCalendarReminder.desktop debian/google-calendar-reminder/opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop
-	ln -s /opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop debian/google-calendar-reminder/usr/share/applications/ru.codefreak.fami.googlecalendarreminder.desktop
-	sed -i 's|^Exec=GoogleCalendarReminder.py|Exec=/opt/GoogleCalendarReminder/GoogleCalendarReminder.py|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/ru.codefreak.fami.googlecalendarreminder.desktop
+	cp -a GoogleCalendarReminder.py GoogleCalendarReminder.svg GoogleCalendarReminder.desktop debian/google-calendar-reminder/opt/GoogleCalendarReminder/
+	ln -s /opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop debian/google-calendar-reminder/usr/share/applications/ru.codefreak.fami.googlecalendarreminder.desktop
+	sed -i 's|^Exec=GoogleCalendarReminder.py|Exec=/opt/GoogleCalendarReminder/GoogleCalendarReminder.py|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop
+	sed -i 's|^Icon=GoogleCalendarReminder|Icon=/opt/GoogleCalendarReminder/GoogleCalendarReminder.svg|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop
 	dh_fixperms
 	dh_installdeb
 	dh_gencontrol
