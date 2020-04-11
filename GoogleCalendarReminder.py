@@ -6,17 +6,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class GoogleCalendarReminder(QtCore.QObject):
+    icon = "appointment-soon"
+    update_interval = 2 * 60 * 1000
+
     def __init__(self):
         super(GoogleCalendarReminder, self).__init__()
         self.trayIcon = QtWidgets.QSystemTrayIcon()
         QtWidgets.qApp.aboutToQuit.connect(self.trayIcon.hide)
-        icon = QtGui.QIcon.fromTheme("appointment-soon")
+        icon = QtGui.QIcon.fromTheme(self.icon)
         self.trayIcon.setIcon(icon)
         self.trayIcon.activated.connect(self._on_tray_icon_activated)
 
         self.trayMenu = QtWidgets.QMenu()
         self.trayIcon.setContextMenu(self.trayMenu)
         self.trayMenu.addAction("Open Google Calendar").triggered.connect(self._open_google_calendar)
+        self.trayMenu.addAction("Show Agenda").triggered.connect(self._show_agenda)
         self.trayMenu.addSeparator()
         self.trayMenu.addAction("Remind Now").triggered.connect(self._remind_now)
         autoRemind = self.trayMenu.addAction("Remind Automatically")
@@ -28,7 +32,7 @@ class GoogleCalendarReminder(QtCore.QObject):
 
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(False)
-        self.timer.setInterval(2 * 60 * 1000)
+        self.timer.setInterval(self.update_interval)
         self.timer.timeout.connect(self._remind_now)
         self.timer.start()
 
@@ -40,9 +44,25 @@ class GoogleCalendarReminder(QtCore.QObject):
     def _open_google_calendar(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://calendar.google.com"))
 
+    def _show_agenda(self):
+        # self.trayIcon.showMessage("Calendar", self.trayIcon.toolTip(), self.trayIcon.icon())
+        QtCore.QProcess.startDetached("/usr/bin/notify-send", [
+            "-u", "critical",
+            "-i", self.icon,
+            "-a", "GoogleCalendarReminder",
+            "Google Calendar Reminder",
+            self.trayIcon.toolTip()
+        ])
+
     def _remind_now(self):
         remind_process = QtCore.QProcess()
-        remind_process.start("/usr/bin/gcalcli", ["remind", "10"])
+        remind_command_arg = "/usr/bin/notify-send " + \
+            "-u critical " + \
+            "-i " + self.icon + " " + \
+            "-a GoogleCalendarReminder " + \
+            "'Google Calendar Reminder' " + \
+            "'%s'"
+        remind_process.start("/usr/bin/gcalcli", ["remind", "10", remind_command_arg])
         remind_process.waitForFinished()
         agenda_process = QtCore.QProcess()
         agenda_process.start("/usr/bin/gcalcli", ["--nocolor", "agenda"])
@@ -54,14 +74,7 @@ class GoogleCalendarReminder(QtCore.QObject):
             self._open_google_calendar()
         elif reason == QtWidgets.QSystemTrayIcon.Trigger:
             self._remind_now()
-            # self.trayIcon.showMessage("Calendar", self.trayIcon.toolTip(), self.trayIcon.icon())
-            QtCore.QProcess.startDetached("/usr/bin/notify-send", [
-                "-u", "critical",
-                "-i", "appointment-soon",
-                "-a", "gcalcli",
-                "Google Calendar Reminder",
-                self.trayIcon.toolTip()
-            ])
+            self._show_agenda()
 
     def _on_auto_remind_toggled(self, checked):
         if checked and self.timer.isActive():
