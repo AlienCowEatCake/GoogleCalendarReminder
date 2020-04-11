@@ -15,3 +15,7 @@ Simple system tray agent will remind you about upcoming events from your Google 
 2. Launch GoogleCalendarReminder
 3. ...
 4. PROFIT!
+
+## Screenshots
+
+![1](img/screenshot1.png)
