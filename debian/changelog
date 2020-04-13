@@ -1,3 +1,10 @@
+google-calendar-reminder (0.0.3-1) unstable; urgency=low
+
+  * Use notify-send as optional dependency
+  * Minor improvements
+
+ -- Peter Zhigalov <peter.zhigalov@gmail.com>  Mon, 13 Apr 2020 07:32:19 +0700
+
 google-calendar-reminder (0.0.2-1) unstable; urgency=low
 
   * New application icon

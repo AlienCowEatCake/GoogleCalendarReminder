@@ -14,8 +14,7 @@ class GoogleCalendarReminder(QtCore.QObject):
         super(GoogleCalendarReminder, self).__init__()
         self.trayIcon = QtWidgets.QSystemTrayIcon()
         QtWidgets.qApp.aboutToQuit.connect(self.trayIcon.hide)
-        icon = QtGui.QIcon(self.icon)
-        self.trayIcon.setIcon(icon)
+        self.trayIcon.setIcon(QtGui.QIcon(self.icon))
         self.trayIcon.activated.connect(self._on_tray_icon_activated)
 
         self.trayMenu = QtWidgets.QMenu()
@@ -78,7 +77,6 @@ class GoogleCalendarReminder(QtCore.QObject):
         if reason in [QtWidgets.QSystemTrayIcon.DoubleClick, QtWidgets.QSystemTrayIcon.MiddleClick]:
             self._open_google_calendar()
         elif reason == QtWidgets.QSystemTrayIcon.Trigger:
-            self._remind_now()
             self._show_agenda()
 
     def _on_auto_remind_toggled(self, checked):
@@ -92,6 +90,7 @@ class GoogleCalendarReminder(QtCore.QObject):
 
 def main():
     app = QtWidgets.QApplication([])
+    app.setQuitOnLastWindowClosed(False)
     reminder = GoogleCalendarReminder()
     reminder.show()
     return app.exec_()

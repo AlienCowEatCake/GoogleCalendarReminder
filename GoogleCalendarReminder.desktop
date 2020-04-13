@@ -3,7 +3,7 @@
 Version=1.0
 Name=Google Calendar Reminder
 GenericName=Google Calendar Reminder
-Comment=Google Calendar Reminder
+Comment=Simple system tray agent will remind you about upcoming events from your Google Calendar
 Exec=GoogleCalendarReminder.py
 Icon=GoogleCalendarReminder
 Type=Application
