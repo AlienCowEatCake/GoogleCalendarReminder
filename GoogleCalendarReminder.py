@@ -45,30 +45,34 @@ class GoogleCalendarReminder(QtCore.QObject):
     def _open_google_calendar(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://calendar.google.com"))
 
-    def _show_agenda(self):
-        # self.trayIcon.showMessage("Calendar", self.trayIcon.toolTip(), self.trayIcon.icon())
-        QtCore.QProcess.startDetached("/usr/bin/notify-send", [
+    def _show_notification(self, text):
+        if not QtCore.QProcess.startDetached("notify-send", [
             "-u", "critical",
             "-i", self.icon,
             "-a", "GoogleCalendarReminder",
             "Google Calendar Reminder",
-            self.trayIcon.toolTip()
-        ])
+            text
+        ]):
+            self.trayIcon.showMessage("Google Calendar Reminder", text, self.trayIcon.icon())
+
+    def _update_agenda(self):
+        process = QtCore.QProcess()
+        process.start("gcalcli", ["--nocolor", "agenda"])
+        process.waitForFinished()
+        self.trayIcon.setToolTip(process.readAllStandardOutput().data().decode('utf8'))
+
+    def _show_agenda(self):
+        self._update_agenda()
+        self._show_notification(self.trayIcon.toolTip())
 
     def _remind_now(self):
-        remind_process = QtCore.QProcess()
-        remind_command_arg = "/usr/bin/notify-send " + \
-            "-u critical " + \
-            "-i " + self.icon + " " + \
-            "-a GoogleCalendarReminder " + \
-            "'Google Calendar Reminder' " + \
-            "'%s'"
-        remind_process.start("/usr/bin/gcalcli", ["remind", "10", remind_command_arg])
-        remind_process.waitForFinished()
-        agenda_process = QtCore.QProcess()
-        agenda_process.start("/usr/bin/gcalcli", ["--nocolor", "agenda"])
-        agenda_process.waitForFinished()
-        self.trayIcon.setToolTip(agenda_process.readAllStandardOutput().data().decode('utf8'))
+        process = QtCore.QProcess()
+        process.start("gcalcli", ["remind", "10", "echo %s"])
+        process.waitForFinished()
+        remind_text = process.readAllStandardOutput().data().decode('utf8')
+        if remind_text:
+            self._show_notification(remind_text)
+        self._update_agenda()
 
     def _on_tray_icon_activated(self, reason):
         if reason in [QtWidgets.QSystemTrayIcon.DoubleClick, QtWidgets.QSystemTrayIcon.MiddleClick]:
