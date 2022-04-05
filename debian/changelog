@@ -1,3 +1,10 @@
+google-calendar-reminder (0.0.4-1) unstable; urgency=low
+
+  * Fix autolaunch ability
+  * Change application identifier
+
+ -- Peter Zhigalov <peter.zhigalov@gmail.com>  Tue, 05 Apr 2022 23:07:08 +0700
+
 google-calendar-reminder (0.0.3-1) unstable; urgency=low
 
   * Use notify-send as optional dependency

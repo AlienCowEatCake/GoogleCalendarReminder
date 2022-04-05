@@ -22,7 +22,7 @@ binary-arch: build
 	dh_prep
 	dh_installdirs
 	cp -a GoogleCalendarReminder.py GoogleCalendarReminder.svg GoogleCalendarReminder.desktop debian/google-calendar-reminder/opt/GoogleCalendarReminder/
-	ln -s /opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop debian/google-calendar-reminder/usr/share/applications/ru.codefreak.fami.googlecalendarreminder.desktop
+	ln -s /opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop debian/google-calendar-reminder/usr/share/applications/com.github.aliencoweatcake.googlecalendarreminder.desktop
 	sed -i 's|^Exec=GoogleCalendarReminder.py|Exec=/opt/GoogleCalendarReminder/GoogleCalendarReminder.py|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop
 	sed -i 's|^Icon=GoogleCalendarReminder|Icon=/opt/GoogleCalendarReminder/GoogleCalendarReminder.svg|' debian/google-calendar-reminder/opt/GoogleCalendarReminder/GoogleCalendarReminder.desktop
 	dh_fixperms
