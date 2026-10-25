@@ -1,3 +1,11 @@
+google-calendar-reminder (0.0.5-1) unstable; urgency=low
+
+  * Port to PyQt6
+  * Improve gcalcli errors handling
+  * Refresh icon colors
+
+ -- Peter Zhigalov <peter.zhigalov@gmail.com>  Mon, 26 Oct 2026 04:40:28 +0700
+
 google-calendar-reminder (0.0.4-1) unstable; urgency=low
 
   * Fix autolaunch ability

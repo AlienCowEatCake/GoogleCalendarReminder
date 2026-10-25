@@ -3,7 +3,7 @@
 import os
 import sys
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class GoogleCalendarReminder(QtCore.QObject):
@@ -13,7 +13,7 @@ class GoogleCalendarReminder(QtCore.QObject):
     def __init__(self):
         super(GoogleCalendarReminder, self).__init__()
         self._trayIcon = QtWidgets.QSystemTrayIcon()
-        QtWidgets.qApp.aboutToQuit.connect(self._trayIcon.hide)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self._trayIcon.hide)
         self._trayIcon.setIcon(QtGui.QIcon(self._icon))
         self._trayIcon.activated.connect(self._on_tray_icon_activated)
 
@@ -28,7 +28,7 @@ class GoogleCalendarReminder(QtCore.QObject):
         autoRemind.setChecked(True)
         autoRemind.triggered.connect(self._on_auto_remind_toggled)
         self._trayMenu.addSeparator()
-        self._trayMenu.addAction("Exit").triggered.connect(QtWidgets.qApp.quit)
+        self._trayMenu.addAction("Exit").triggered.connect(QtWidgets.QApplication.instance().quit)
 
         self._timer = QtCore.QTimer()
         self._timer.setSingleShot(False)
@@ -47,38 +47,50 @@ class GoogleCalendarReminder(QtCore.QObject):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://calendar.google.com"))
 
     def _show_notification(self, text):
-        if not QtCore.QProcess.startDetached("notify-send", [
+        success, pid = QtCore.QProcess.startDetached("notify-send", [
             "-u", "critical",
             "-i", self._icon,
             "-a", "GoogleCalendarReminder",
             "Google Calendar Reminder",
             text
-        ]):
+        ])
+        if not success:
             self._trayIcon.showMessage("Google Calendar Reminder", text, self._trayIcon.icon())
 
-    def _update_agenda(self):
+    def _call_gcalcli(self, args):
         process = QtCore.QProcess()
-        process.start("gcalcli", ["--nocolor", "agenda"])
+        process.start("gcalcli", args)
+        if not process.waitForStarted():
+            print(process.errorString(), file=sys.stderr)
+            return process.errorString()
         process.waitForFinished()
-        self._trayIcon.setToolTip(process.readAllStandardOutput().data().decode('utf8'))
+        if process.exitStatus() != QtCore.QProcess.ExitStatus.NormalExit:
+            err = "gcalcli process crashed:\n" + process.readAllStandardError().data().decode('utf8')
+            print(err, file=sys.stderr)
+            return err
+        if process.exitCode() != 0:
+            err = "gcalcli process exited with non-zero code:\n" + process.readAllStandardError().data().decode('utf8')
+            print(err, file=sys.stderr)
+            return err
+        return process.readAllStandardOutput().data().decode('utf8')
+
+    def _update_agenda(self):
+        self._trayIcon.setToolTip(self._call_gcalcli(["--nocolor", "agenda"]))
 
     def _show_agenda(self):
         self._update_agenda()
         self._show_notification(self._trayIcon.toolTip())
 
     def _remind_now(self):
-        process = QtCore.QProcess()
-        process.start("gcalcli", ["remind", "10", "echo %s"])
-        process.waitForFinished()
-        remind_text = process.readAllStandardOutput().data().decode('utf8')
+        remind_text = self._call_gcalcli(["remind", "10", "echo %s"])
         if remind_text:
             self._show_notification(remind_text)
         self._update_agenda()
 
     def _on_tray_icon_activated(self, reason):
-        if reason in [QtWidgets.QSystemTrayIcon.DoubleClick, QtWidgets.QSystemTrayIcon.MiddleClick]:
+        if reason in [QtWidgets.QSystemTrayIcon.ActivationReason.DoubleClick, QtWidgets.QSystemTrayIcon.ActivationReason.MiddleClick]:
             self._open_google_calendar()
-        elif reason == QtWidgets.QSystemTrayIcon.Trigger:
+        elif reason == QtWidgets.QSystemTrayIcon.ActivationReason.Trigger:
             self._show_agenda()
 
     def _on_auto_remind_toggled(self, checked):
@@ -95,7 +107,7 @@ def main():
     app.setQuitOnLastWindowClosed(False)
     reminder = GoogleCalendarReminder()
     reminder.show()
-    return app.exec_()
+    return app.exec()
 
 
 if __name__ == '__main__':
